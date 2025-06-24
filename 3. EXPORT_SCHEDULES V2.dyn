@@ -1,0 +1,243 @@
+{
+  "Uuid": "bd7c7826-0a54-4c34-926a-26fcec35a592",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "3. EXPORT_SCHEDULES",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import pandas as pd\r\n\r\n\r\nentrada = IN[0]\r\nubicacion = IN[1][2]\r\nmacro_lista = IN[1][0]\r\nnombres_hojas = IN[1][1]\r\n\r\nlistas_dict = {nombres_hojas[i]: macro_lista[i] for i in range(len(macro_lista))}\r\n\r\nif entrada: \r\n    with pd.ExcelWriter(ubicacion, engine='openpyxl') as writer:\r\n        for nombre, lista in listas_dict.items():\r\n            df = pd.DataFrame(lista)\r\n            df.to_excel(writer, sheet_name=nombre, index=False, header = False)\r\n    a = \"Calculo realizado\"\r\nelse:\r\n    a = \"Coloca true para ejecutar\"\r\n\r\nOUT = a\r\n",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "2d56acdf6eb14c45b312c9e3dd331418",
+      "Inputs": [
+        {
+          "Id": "bfe118ba76ef4d2a8ecf4e7e087d9d78",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "061f613792bb4ee0b836a087ab4bd4fb",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "92d7297d5a8848e28df2b820029540fe",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "eee1d3aeff8d4713bf6478119be0d7e1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8d36236e4e9e4573939563e1befbc4fd",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys\r\nimport System\r\nfrom System import Array\r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitNodes')\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference('RevitAPI')\r\nclr.AddReference('RevitAPIUI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom Autodesk.Revit.UI import *\r\nfrom Autodesk.Revit.UI.Selection import *\r\nclr.AddReference('System')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nclr.AddReference(\"System.Drawing\")\r\n\r\n#Import system\r\nimport System\r\nfrom System.Windows.Forms import *\r\nfrom System.Drawing import  Point, Size, Font, FontStyle, Drawing2D\r\n\r\nclass OM_Form(Form):                  # Heredas todo de la clase forms \r\n    def __init__(self):\r\n        self.Text = 'OMBIM WinForm'\r\n        self.Size = Size(500,800)\r\n        self.StartPosition = FormStartPosition.CenterScreen\r\n        self.FormBorderStyle = FormBorderStyle.FixedDialog\r\n        self.TopMost = True  # Tu ventana antes de las demás\r\n        self.ShowIcon = False  # Quita el icono de la barra de título\r\n        self.MaximizeBox = False  # Quita el botón de maximizar\r\n        self.MinimizeBox = False  # Quita el botón de minimizar\r\n        self.submitted = False  \r\n       # Label for Textbox \r\n        self.label_textbox = Label()\r\n        self.label_textbox.Text = \"Export Schedules\"\r\n        self.label_textbox.Location = Point(20, 20)\r\n        self.label_textbox.Size = Size(180, 80)\r\n        self.Controls.Add(self.label_textbox)\r\n        self.label_textbox.Font = Font(\"Arial\", 20, FontStyle.Bold)\r\n        self.label_textbox.ForeColor = System.Drawing.Color.Blue\r\n\r\n        # Label for ListBox\r\n        self.labelListBox = Label()\r\n        self.labelListBox.Text = \"1. Schedule List\"\r\n        self.labelListBox.Location = Point(20,110)\r\n        self.labelListBox.Size = Size(200,40)\r\n        self.labelListBox.Font = Font(\"Arial\", 12, FontStyle.Bold)\r\n        self.Controls.Add(self.labelListBox)\r\n        \r\n        # Evento para capturar cierre por \"X\"\r\n        self.FormClosing += self.on_form_closing\r\n\r\n        # Label for list box Filter\r\n        self.labelFilter = Label()\r\n        self.labelFilter.Text = \"Filter\"\r\n        self.labelFilter.Location = Point(20,150)\r\n        self.labelFilter.Size = Size(80,20)\r\n        self.Controls.Add(self.labelFilter)\r\n\r\n        # TextBox for ListBOx Filter\r\n        self.textBoxFilter = TextBox()\r\n        self.textBoxFilter.Location = Point(100, 150)\r\n        self.textBoxFilter.Size  = Size(350,20)\r\n        self.Controls.Add(self.textBoxFilter)\r\n        self.textBoxFilter.TextChanged += self.filter_updated\r\n\r\n        # CheckedListBox\r\n        self.checkedListBox = CheckedListBox()\r\n        self.checkedListBox.Location = Point(20, 180)  # Se desplaza un poco hacia abajo\r\n        self.checkedListBox.Size = Size(430, 300)\r\n        self.Controls.Add(self.checkedListBox)\r\n        self.update_listBox()\r\n\r\n        # Button to select all filtered items\r\n        self.buttonSelectAll = Button()\r\n        self.buttonSelectAll.Text = \"Select All\"\r\n        self.buttonSelectAll.Location = Point(20,490)  # Ajusta la posición según tu diseño\r\n        self.buttonSelectAll.Size = Size(100, 30)\r\n        self.buttonSelectAll.Click += self.select_all_items\r\n        self.Controls.Add(self.buttonSelectAll)\r\n\r\n        # Button to deselect all filtered items\r\n        self.buttonDeselectAll = Button()\r\n        self.buttonDeselectAll.Text = \"Deselect All\"\r\n        self.buttonDeselectAll.Location = Point(130, 490)  # Ajusta la posición según tu diseño\r\n        self.buttonDeselectAll.Size = Size(100, 30)\r\n        self.buttonDeselectAll.Click += self.deselect_all_items\r\n        self.Controls.Add(self.buttonDeselectAll)\r\n\r\n        #Create a separator\r\n        self.separator1 = Panel()\r\n        self.separator1.Height = 2 \r\n        self.separator1.Width = 450\r\n        self.separator1.BackColor = System.Drawing.Color.Black\r\n        self.separator1.Location = Point(10,530)\r\n        self.Controls.Add(self.separator1)\r\n\r\n        # Label for ListBox\r\n        self.labelListBox2 = Label()\r\n        self.labelListBox2.Text = \"2. Excel File\"\r\n        self.labelListBox2.Location = Point(20,550)\r\n        self.labelListBox2.Size = Size(200,30)\r\n        self.labelListBox2.Font = Font(\"Arial\", 12, FontStyle.Bold)\r\n        self.Controls.Add(self.labelListBox2)\r\n        \r\n        # TextBox\r\n        self.textBox = TextBox()\r\n        self.textBox.Text = \"\"\r\n        self.textBox.Location = Point(150, 600)\r\n        self.textBox.Size = Size(320, 50)\r\n        self.Controls.Add(self.textBox)\r\n\r\n        # Button to open File Dialog\r\n        self.buttonFile = Button()\r\n        self.buttonFile.Text = \"Select File\"\r\n        self.buttonFile.Location = Point(20, 600)\r\n        self.buttonFile.Size = Size(100, 30)\r\n        self.Controls.Add(self.buttonFile)\r\n        \r\n        # Register event for File Button\r\n        self.buttonFile.Click += self.on_select_file_click\r\n        \r\n\r\n        # Submit Button\r\n        self.submit_button = Button()\r\n        self.submit_button.Text = \"Submit\"\r\n        self.submit_button.Location = Point(170,650)\r\n        self.submit_button.Size = Size(150,40)\r\n        self.submit_button.Click += self.Submit_Button\r\n        self.Controls.Add(self.submit_button)\r\n\r\n\r\n        # Label with \r\n        self.label_footer = Label()\r\n        self.label_footer.Text = \"Developed by: Oscar Mendoza\"\r\n        self.label_footer.Location = Point(20, 710)\r\n        self.label_footer.Size = Size(300, 30)\r\n        self.label_footer.Font = Font(\"Arial\", 7)\r\n        self.label_footer.ForeColor = System.Drawing.Color.Blue\r\n        self.Controls.Add(self.label_footer)\r\n\r\n        # hyperlink\r\n        self.linkLabel1 = LinkLabel()\r\n        self.linkLabel1.Text = \"Yt: OMBIM \"\r\n        self.linkLabel1.Location = Point(320, 710)\r\n        self.linkLabel1.Size = Size(100, 30)\r\n        self.linkLabel1.LinkClicked += self.link1_clicked\r\n        self.Controls.Add(self.linkLabel1)\r\n\r\n        # Second hyperlink\r\n        self.linkLabel2 = LinkLabel()\r\n        self.linkLabel2.Text = \"Linkedin\"\r\n        self.linkLabel2.Location = Point(420, 710)\r\n        self.linkLabel2.Size = Size(100, 30)\r\n        self.linkLabel2.LinkClicked += self.link2_clicked\r\n        self.Controls.Add(self.linkLabel2)\r\n\r\n    # EVENTS \r\n        \r\n    def on_select_file_click(self, sender, e):\r\n        # Open File Dialog\r\n        file_dialog = OpenFileDialog()\r\n        file_dialog.Filter = \"All files (*.*)|*.*\"\r\n        \r\n        if file_dialog.ShowDialog() == DialogResult.OK:\r\n            file_path = file_dialog.FileName\r\n            self.textBox.Text = file_path  # Display the selected file path in the TextBox\r\n\r\n    def Submit_Button(self, sender,event):\r\n        global OUT  # Captura mensaje del evento \r\n        message1 = \"Print Submited\"\r\n        message2 = self.textBox.Text\r\n        message3 = [self.schedule_mapping[self.checkedListBox.Items[i]] for i in self.checkedListBox.CheckedIndices]\r\n\r\n        if self.textBox.Text == \"\":\r\n            OUT = \"CANCELAR\"\r\n        else:\r\n            OUT = [message1, message2, message3]\r\n        self.submitted = True \r\n        self.Close()\r\n\r\n    def filter_updated(self, sender, event):\r\n        self.update_listBox()\r\n\r\n    def update_listBox(self):\r\n        # Obtener la lista de schedules\r\n        schedule_list = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Schedules).\\\r\n            WhereElementIsNotElementType().ToElements()\r\n        \r\n        filter_text = self.textBoxFilter.Text.lower()\r\n        self.checkedListBox.Items.Clear()\r\n\r\n        # Crear un diccionario para mapear nombres a objetos\r\n        self.schedule_mapping = {schedule.Name: schedule for schedule in schedule_list}\r\n\r\n        # Mostrar los nombres filtrados en el CheckedListBox\r\n        for name, schedule in self.schedule_mapping.items():\r\n            if filter_text in name.lower():\r\n                self.checkedListBox.Items.Add(name)\r\n    # EVENT: Select all items\r\n    def select_all_items(self, sender, event):\r\n        for i in range(self.checkedListBox.Items.Count):\r\n            self.checkedListBox.SetItemChecked(i, True)\r\n\r\n    # EVENT: Deselect all items\r\n    def deselect_all_items(self, sender, event):\r\n        for i in range(self.checkedListBox.Items.Count):\r\n            self.checkedListBox.SetItemChecked(i, False)\r\n\r\n    # Event handler for first hyperlink\r\n    def link1_clicked(self, sender, e):\r\n        System.Diagnostics.Process.Start(\"https://www.youtube.com/@mendozaballenabim\")\r\n\r\n    # Event handler for second hyperlink\r\n    def link2_clicked(self, sender, e):\r\n        System.Diagnostics.Process.Start(\"https://www.linkedin.com/in/omendozab/\")\r\n        \r\n    def on_form_closing(self, sender, e):\r\n        \"\"\"Captura el cierre del formulario por el botón de la 'X'.\"\"\"\r\n        global OUT\r\n        if not self.submitted:  # Si no se presionó Submit, significa que cerraron con la \"X\"\r\n            OUT = \"CANCELAR\"\r\n\r\n#References\r\ndoc   = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp   = uiapp.Application\r\nuidoc = uiapp.ActiveUIDocument\r\nselection = uidoc.Selection\r\nrvt_year    = int(app.VersionNumber)\r\n__title__ = \"Walls\"\r\n\r\n\r\n\r\nresult = []\r\nschedules_names = []\r\nrun = IN[0]\r\n\r\nif run:    \r\n    # Show the form\r\n    form = OM_Form()\r\n    Application.Run(form)  # el codigo para hasta que le demos instrucciones\r\n    if OUT == \"CANCELAR\":\r\n        OUT = \"Operacion cancelada por usuario\"\r\n    else:\r\n        ubicacion = OUT[1]\r\n        schedules = OUT[2]\r\n        for i in range(len(schedules)):\r\n            schedule = UnwrapElement(schedules[i])\r\n            name = schedule.Name\r\n            schedules_names.append(name)\r\n            # Transaction \r\n            TransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n            table = schedule.GetTableData().GetSectionData(SectionType.Body)\r\n            nRows = table.NumberOfRows\r\n            nColumns = table.NumberOfColumns\r\n\r\n            # Collect all of data from the schedule\r\n            dataListRow = []\r\n            for row in range(nRows):\r\n                dataListColumn = []\r\n                for column in range(nColumns): \r\n                    dataListColumn.append(TableView.GetCellText(schedule, SectionType.Body, row, column))\r\n                dataListRow.append(dataListColumn)\r\n\r\n            # Transaction\r\n            TransactionManager.Instance.TransactionTaskDone()\r\n            result.append(dataListRow)\r\n        OUT = result, schedules_names, ubicacion\r\nelse: \r\n    OUT = \"True para ejecutar\"\r\n",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "481fb7002eda491da01c67cec289d99c",
+      "Inputs": [
+        {
+          "Id": "f3085949a4cf45be81b0db2523f6f3d2",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0baddc89a48143c487a78bd92f2ff511",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "6403143f5ead40b9a4e529ff4529ad38",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b43c8fa1779f45eca27ac8332f6b41dd",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "8d36236e4e9e4573939563e1befbc4fd",
+      "End": "bfe118ba76ef4d2a8ecf4e7e087d9d78",
+      "Id": "bf7a71a07be446c2b089f6ba6884792f",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "0baddc89a48143c487a78bd92f2ff511",
+      "End": "061f613792bb4ee0b836a087ab4bd4fb",
+      "Id": "f0ccb923d172424087fb750e4707c227",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "b43c8fa1779f45eca27ac8332f6b41dd",
+      "End": "f3085949a4cf45be81b0db2523f6f3d2",
+      "Id": "afef9762c31645f78e12d4ae6746dcbc",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.19",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "6.1",
+      "Data": {}
+    }
+  ],
+  "Author": "",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.16.2.5624",
+      "RunType": "Automatic",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "ConnectorPins": [],
+    "NodeViews": [
+      {
+        "Name": "PROCESAMIENTO",
+        "ShowGeometry": true,
+        "Id": "2d56acdf6eb14c45b312c9e3dd331418",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 319.2000000000001,
+        "Y": 241.60000000000002
+      },
+      {
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Id": "eee1d3aeff8d4713bf6478119be0d7e1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 102.87402113454976,
+        "Y": 180.00247555791654
+      },
+      {
+        "Name": "INTERFAZ",
+        "ShowGeometry": true,
+        "Id": "481fb7002eda491da01c67cec289d99c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -81.034959674853383,
+        "Y": 297.26848074300631
+      },
+      {
+        "Name": "Boolean",
+        "ShowGeometry": true,
+        "Id": "6403143f5ead40b9a4e529ff4529ad38",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -301.7358203153272,
+        "Y": 265.10474920477282
+      }
+    ],
+    "Annotations": [],
+    "X": 459.23946648982479,
+    "Y": 25.127879935591295,
+    "Zoom": 1.0360578756006082
+  }
+}

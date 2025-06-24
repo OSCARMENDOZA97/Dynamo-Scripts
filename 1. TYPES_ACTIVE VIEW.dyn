@@ -1,0 +1,216 @@
+{
+  "Uuid": "a1a768b7-02ee-4802-a77a-0a6965dc1a03",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "1. TYPES_ACTIVE VIEW",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys\r\nimport System\r\nfrom System import Array\r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitNodes')\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference('RevitAPI')\r\nclr.AddReference('RevitAPIUI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom Autodesk.Revit.UI import *\r\nfrom Autodesk.Revit.UI.Selection import *\r\n\r\n# References\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\nuidoc = uiapp.ActiveUIDocument\r\n\r\n# Function to get parameter value\r\ndef get_parameter(param):\r\n    \"\"\"Get value from a parameter based on its Storage Type\"\"\"\r\n    if param:\r\n        if param.StorageType == StorageType.Double:\r\n            return param.AsDouble()\r\n        elif param.StorageType == StorageType.ElementId:\r\n            return param.AsElementId()\r\n        elif param.StorageType == StorageType.Integer:\r\n            return param.AsInteger()\r\n        elif param.StorageType == StorageType.String:\r\n            return param.AsString()\r\n    return None\r\n\r\n# Get the active view\r\nactive_view = uidoc.ActiveView\r\n\r\n# Collector\r\ncollector = FilteredElementCollector(doc, active_view.Id)\r\nvisible_elements = collector.WhereElementIsNotElementType().ToElements()\r\n\r\n# Inputs\r\nelement_types = []  # Lista de tipos\r\ntype_ids = []  # Cambiado de conjunto a lista\r\ntype_categories = []  # Categorías relacionadas con los tipos\r\ntype_names = []  # Nombres de los tipos relacionados con los IDs\r\nfamily_names=[]\r\n\r\n## CODE ##\r\n\r\nfor element in visible_elements:\r\n    type_id = element.GetTypeId()\r\n    if type_id and not type_id.Equals(ElementId.InvalidElementId):\r\n        if type_id not in type_ids:  # Verificar si el ID ya fue agregado\r\n            type_ids.append(type_id)  # Agregar el ID a la lista\r\n            element_type = doc.GetElement(type_id)\r\n            type_name = get_parameter(element_type.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM))\r\n            \r\n            category = element.Category\r\n            category_name = category.Name if category else \"No Category\"\r\n            \r\n            family_Name = get_parameter(element_type.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME))\r\n            \r\n            # Agregar los valores relacionados\r\n            family_names.append(family_Name)\r\n            type_names.append(type_name)\r\n            type_categories.append(category_name)\r\n            element_types.append(element_type)\r\n\r\n# Crear la lista final con las relaciones correctas\r\nlista = [family_names, type_names, type_categories, type_ids]\r\n\r\n# Output\r\nOUT = lista\r\n",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "26826708ca2b4be4be0e781271f561e7",
+      "Inputs": [
+        {
+          "Id": "838aa41f7c45401baaae7d09c489b384",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6b8ddd8b446146778b430af87302d20b",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import pandas as pd\r\n\r\nlista = IN[0]\r\nubicacion = IN[1]\r\ncolumna_vacia = [\"\"]*len(lista[0])\r\n\r\ndf_rss = pd.DataFrame({\r\n    \"Family_Name\": lista[0],\r\n    \"Type_Name\": lista[1],  \r\n    \"Category\": lista[2],\r\n    \"Assembly Code\": columna_vacia,     \r\n    \"IDs\": lista[3]})\r\n\r\nif ubicacion:\r\n\tdf_rss.to_excel(ubicacion, index = False)\r\n\ta = \"Calculo realizado\"\r\nelse:\r\n\ta = \"Coloca la entrada para iniciar\"\r\n\r\nOUT =  a",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "f0972341c8be450ca49c32fdf851ab01",
+      "Inputs": [
+        {
+          "Id": "cf01794471d84fd5abdf9db0ad7df5b4",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d9a0f529e95344bcb8f3a1746a320006",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9e5af83a27fc4de28857cfed10674431",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "G:\\Mi unidad\\COLABORATIVO\\DYNAMO\\REALIZADOS\\PANDAS\\EXCEL_V1.xlsx",
+      "InputValue": "PANDAS\\EXCEL_V1.xlsx",
+      "NodeType": "ExtensionNode",
+      "Id": "64130008eb8f4117b2a4e8393bbeb6a7",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "cdcf5fc0ed334ee481c7730852a8a765",
+          "Name": "",
+          "Description": "File Path",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its file path."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6b8ddd8b446146778b430af87302d20b",
+      "End": "cf01794471d84fd5abdf9db0ad7df5b4",
+      "Id": "723c09b507a54b14933707313fd8b654",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "cdcf5fc0ed334ee481c7730852a8a765",
+      "End": "d9a0f529e95344bcb8f3a1746a320006",
+      "Id": "ae5daf5a59de45c38edf59906feecdf1",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "EXCEL_V1.xlsx",
+      "ReferenceType": "External",
+      "Nodes": [
+        "64130008eb8f4117b2a4e8393bbeb6a7"
+      ]
+    }
+  ],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.16",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "3.0",
+      "Data": {}
+    }
+  ],
+  "Author": "None provided",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.16.2.5624",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -24.956029565089331,
+      "EyeY": 32.619032028846775,
+      "EyeZ": 88.454142897931746,
+      "LookX": 19.956029565089331,
+      "LookY": -21.619032028846775,
+      "LookZ": -96.454142897931746,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "ConnectorPins": [],
+    "NodeViews": [
+      {
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Id": "26826708ca2b4be4be0e781271f561e7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 3765.8261762505203,
+        "Y": 1061.4937503237848
+      },
+      {
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Id": "f0972341c8be450ca49c32fdf851ab01",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 4156.6003327160224,
+        "Y": 1111.2825991102886
+      },
+      {
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Id": "64130008eb8f4117b2a4e8393bbeb6a7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 3805.4719524548145,
+        "Y": 820.75787478776283
+      }
+    ],
+    "Annotations": [],
+    "X": -3953.2683214101385,
+    "Y": -897.98190974819613,
+    "Zoom": 1.1135263731412086
+  }
+}

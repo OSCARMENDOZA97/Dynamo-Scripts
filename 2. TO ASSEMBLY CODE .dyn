@@ -1,0 +1,404 @@
+{
+  "Uuid": "a1a768b7-02ee-4802-a77a-0a6965dc1a03",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "2. TO ASSEMBLY CODE ",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import pandas as pd\r\nubicacion = IN[0]\r\n\r\nif str(ubicacion) != \"\": \r\n    datos = pd.read_excel(ubicacion)\r\n    dict = datos.to_dict(orient = \"list\")\r\n    a = \"Calculo realizado\"\r\nelse:\r\n    a = \"No realizado el calculo. Inserta ubicacio\"\r\n    \r\nOUT =  [dict[\"IDs\"], dict[\"Assembly Code\"]]",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "158df8498cb84b219c99b906dfa0ba77",
+      "Inputs": [
+        {
+          "Id": "9523973bd8c44a5290a05029b119b669",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9a124c579ad44ca0b7d32bdaaa6e1707",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "C:\\Users\\oscar\\OneDrive\\Documentos\\EXCEL_V1.xlsx",
+      "InputValue": "C:\\Users\\oscar\\OneDrive\\Documentos\\EXCEL_V1.xlsx",
+      "NodeType": "ExtensionNode",
+      "Id": "b82017251606486e8d31abfa1db81513",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "cb23b7e8055845e49b5cba709dc8ea31",
+          "Name": "",
+          "Description": "File Path",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system to get its file path."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport sys\r\nimport System\r\nfrom System import Array\r\nfrom System.Collections.Generic import *\r\n\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nclr.AddReference('RevitNodes')\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nclr.AddReference('RevitAPI')\r\nclr.AddReference('RevitAPIUI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom Autodesk.Revit.UI import *\r\nfrom Autodesk.Revit.UI.Selection import *\r\n\r\n#References\r\ndoc   = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp   = uiapp.Application\r\nuidoc = uiapp.ActiveUIDocument\r\nselection = uidoc.Selection\r\nrvt_year    = int(app.VersionNumber)\r\n__title__ = \"Walls\"\r\n\r\nID = IN[0][0]\r\n\r\nif ID:\r\n\telements = [doc.GetElement(ElementId(x)) for x in ID]\r\nelse: \r\n\telements = \"Calculo no realizado, revisa tus entradas\"\r\n\r\nOUT = elements",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "6a330ddc5c39422a888e94cd4e096750",
+      "Inputs": [
+        {
+          "Id": "3d32d181e5f14450b1c360d4d258f360",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "ba4975b679984339952554b2b1093370",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.Element.SetParameterByName@string,var",
+      "Id": "1801e67ee1ff4e43b7772832e3e604db",
+      "Inputs": [
+        {
+          "Id": "e91ce04de70949ec80bea051864dc8e9",
+          "Name": "element",
+          "Description": "Revit.Elements.Element",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "98898fcaa3ed4013805c1532d713680a",
+          "Name": "parameterName",
+          "Description": "The name of the parameter to set.\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5409afe1cafe4e22b5dace209d2cb6d1",
+          "Name": "value",
+          "Description": "The value.\n\nvar",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2804799f0e09436f8ea3c8a785317e34",
+          "Name": "Element",
+          "Description": "Element",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Set one of the element's parameters.\n\nElement.SetParameterByName (parameterName: string, value: var): Element"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"Assembly Code\";",
+      "Id": "acf79a81a42e485ca51d5705e27649a1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c10af3b892f041289075e8a539e1a98a",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "A[1];",
+      "Id": "0f44cce6250c40f68d91b6bd7cf55980",
+      "Inputs": [
+        {
+          "Id": "d2ffc2b3066949108259cc3216f9409b",
+          "Name": "A",
+          "Description": "A",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "18677ea0aa684691a6b0ac090631b5c1",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.FromObject, CoreNodeModels",
+      "NodeType": "ExtensionNode",
+      "Id": "68dc58d38ea54add83c17d9c7c888e9f",
+      "Inputs": [
+        {
+          "Id": "a195eb7340b040c69fd3c96a3792958b",
+          "Name": "object",
+          "Description": "Object to be serialized",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b500f7e5cee5472e97b6fe82869b2ac5",
+          "Name": "string",
+          "Description": "String representation of the object",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Convert an object to a string representation."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "9a124c579ad44ca0b7d32bdaaa6e1707",
+      "End": "3d32d181e5f14450b1c360d4d258f360",
+      "Id": "820f913bb5994168aa170f22bb55a210",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "9a124c579ad44ca0b7d32bdaaa6e1707",
+      "End": "d2ffc2b3066949108259cc3216f9409b",
+      "Id": "e81f03859e6b432dbc2bd010964326a0",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "cb23b7e8055845e49b5cba709dc8ea31",
+      "End": "9523973bd8c44a5290a05029b119b669",
+      "Id": "91a2f6a1a50f42e9abaaf77ca5660f38",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "ba4975b679984339952554b2b1093370",
+      "End": "e91ce04de70949ec80bea051864dc8e9",
+      "Id": "f960360824ad4818901dce08e275e2c4",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "c10af3b892f041289075e8a539e1a98a",
+      "End": "98898fcaa3ed4013805c1532d713680a",
+      "Id": "93a3c6521d6745418a33a94ebf0a8023",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "18677ea0aa684691a6b0ac090631b5c1",
+      "End": "a195eb7340b040c69fd3c96a3792958b",
+      "Id": "bef46324a3934e748cbe33a320a75f00",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "b500f7e5cee5472e97b6fe82869b2ac5",
+      "End": "5409afe1cafe4e22b5dace209d2cb6d1",
+      "Id": "e3d2c41f6bdf478996db97b8bb93ddb2",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "EXCEL_V1.xlsx",
+      "ReferenceType": "External",
+      "Nodes": [
+        "b82017251606486e8d31abfa1db81513"
+      ]
+    }
+  ],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.16",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "3.0",
+      "Data": {}
+    }
+  ],
+  "Author": "",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.16.2.5624",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "ConnectorPins": [],
+    "NodeViews": [
+      {
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Id": "158df8498cb84b219c99b906dfa0ba77",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 217.96718420585307,
+        "Y": 95.80258205543916
+      },
+      {
+        "Name": "File Path",
+        "ShowGeometry": true,
+        "Id": "b82017251606486e8d31abfa1db81513",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -276.15592113008034,
+        "Y": 45.783527831160242
+      },
+      {
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Id": "6a330ddc5c39422a888e94cd4e096750",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 524.235509300993,
+        "Y": -136.88229660059852
+      },
+      {
+        "Name": "Element.SetParameterByName",
+        "ShowGeometry": true,
+        "Id": "1801e67ee1ff4e43b7772832e3e604db",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1139.2964671136181,
+        "Y": 91.174988179635534
+      },
+      {
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Id": "acf79a81a42e485ca51d5705e27649a1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 784.71443669793666,
+        "Y": 14.709493863474904
+      },
+      {
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Id": "0f44cce6250c40f68d91b6bd7cf55980",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 479.0,
+        "Y": 293.0
+      },
+      {
+        "Name": "String from Object",
+        "ShowGeometry": true,
+        "Id": "68dc58d38ea54add83c17d9c7c888e9f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 722.647315967298,
+        "Y": 267.59080223712925
+      }
+    ],
+    "Annotations": [],
+    "X": 56.810197987163065,
+    "Y": 210.75835816387354,
+    "Zoom": 0.71529953846403993
+  }
+}
